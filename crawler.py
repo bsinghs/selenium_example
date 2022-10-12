@@ -6,12 +6,15 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 import requests
 from selenium import webdriver
+import os
 
 
 def is_absolute(url):
     """Determine whether URL is absolute."""
     return bool(urlparse(url).netloc)
 
+def is_inner_link(url):
+    return bool(urlparse(url).path == '' or urlparse(url).path == '/')
 
 options = webdriver.ChromeOptions()
 options.add_argument("headless")
@@ -40,7 +43,7 @@ for i in range(600):
     links = soup.find_all('a')
     for link in links:
         u = link.get('href')
-        if not is_absolute(u):
+        if not is_absolute(u) and not is_inner_link(u):
             u = urljoin(url, u)
         if "stevens.edu" in u:
             q.put(u)
